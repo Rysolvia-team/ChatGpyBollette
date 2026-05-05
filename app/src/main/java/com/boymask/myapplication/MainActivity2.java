@@ -116,7 +116,7 @@ public class MainActivity2 extends AppCompatActivity {
             return true;
         }
         if (id == R.id.archivio) {
-            Intent intent = new Intent(MainActivity2.this, StoricoBollettaActivity.class);
+            Intent intent = new Intent(MainActivity2.this, StoricoBollettaActivity2.class);
 
             startActivity(intent);
             return true;

@@ -44,7 +44,7 @@ public class DettaglioStoricoBollettaActivity extends AppCompatActivity {
 
         });
 
-        long id = getIntent().getLongExtra("id", -1);
+        int id = getIntent().getIntExtra("id", -1);
 
 
         new Thread(() -> {
