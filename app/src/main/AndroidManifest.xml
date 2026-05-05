@@ -17,6 +17,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApp">
         <activity
+            android:name=".GPTPDFArrayRemoteActivity"
+            android:exported="false" />
+        <activity
             android:name=".StoricoBollettaActivity2"
             android:exported="false" />
         <activity

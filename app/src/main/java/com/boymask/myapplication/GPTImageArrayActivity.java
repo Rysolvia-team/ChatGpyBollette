@@ -17,16 +17,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.boymask.RysLogger;
 import com.boymask.myapplication.listaparametri.RowModel;
 import com.boymask.myapplication.listaparametri.TableAdapter;
+import com.boymask.myapplication.retrofit.ApiGpt;
 import com.boymask.myapplication.retrofit.OpenAIApi;
 import com.boymask.myapplication.retrofit.RetrofitClient;
+import com.boymask.testpay.retrofit_boot.PaymentApi;
+import com.boymask.testpay.retrofit_boot.RetrofitBootClient;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -39,7 +46,6 @@ public class GPTImageArrayActivity extends AppCompatActivity {
     String API_KEY = MainActivity2.API_KEY;
     private ArrayList<RowModel> data = new ArrayList<>();
     private Button askGpt;
-    private View loadingContainer;
     private View progressBar;
     private View loadingText;
     private RecyclerView recyclerView;
@@ -49,10 +55,12 @@ public class GPTImageArrayActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gptdata_reader);
 
+        boolean isRemote = getIntent().getBooleanExtra("isRemote", false);
+
         progressBar = findViewById(R.id.progressBar);
         loadingText = findViewById(R.id.loadingText);
         askGpt = findViewById(R.id.askgpt);
-        loadingContainer = findViewById(R.id.loadingContainer);
+        View loadingContainer = findViewById(R.id.loadingContainer);
         recyclerView = findViewById(R.id.recyclerView);
 
 // all'inizio mostro loading e nascondo lista
@@ -65,11 +73,51 @@ public class GPTImageArrayActivity extends AppCompatActivity {
             finish();
             return;
         }
-        for (String uri : paths) {
-            // QUI puoi usarle (upload, preview ecc.)
-            System.out.println("sURI: " + uri);
-        }
-        analyzeImages(paths);
+
+        if (isRemote)
+            analyzeImagesRemote(paths);
+        else
+            analyzeImages(paths);
+    }
+
+    private void analyzeImagesRemote(ArrayList<String> paths) {
+        List<String> filesbase64 = new ArrayList<>();
+        for (String path : paths)
+            filesbase64.add( encodeImageToBase64(path));
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("prompt", Prompt.PROMPT_ASK);
+        body.put("images", filesbase64);
+
+
+        ApiGpt api = RetrofitBootClient.getClient().create(ApiGpt.class);
+
+
+        api.analyze(body).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    if (response.body() != null) {
+                        String val = response.body().string();
+                        runOnUiThread(() -> reportOutput(val));
+                    }
+                    if (response.errorBody() != null) {
+                        String val = response.errorBody().string();
+                        runOnUiThread(() -> reportOutput(val));
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    RysLogger.add(e);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                t.printStackTrace();
+                RysLogger.add(t);
+            }
+        });
     }
 
     private void analyzeImages(ArrayList<String> imagePaths) {
@@ -171,32 +219,37 @@ public class GPTImageArrayActivity extends AppCompatActivity {
             loadingText.setVisibility(View.GONE);
         });
 
-   //     RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        //     RecyclerView recyclerView = findViewById(R.id.recyclerView);
 
         // 🔥 dati iniziali
         data.clear();
 
         try {
-            JSONObject jsonObject = new JSONObject(string);
+            try {
+                JSONObject jsonObject = new JSONObject(string);
 
-            JSONArray output = jsonObject.optJSONArray("output");
-            if (output == null || output.length() == 0) return;
+                JSONArray output = jsonObject.optJSONArray("output");
+                if (output == null || output.length() == 0) return;
 
-            JSONObject first = output.optJSONObject(0);
-            if (first == null) return;
+                JSONObject first = output.optJSONObject(0);
+                if (first == null) return;
 
-            JSONArray content = first.optJSONArray("content");
-            if (content == null || content.length() == 0) return;
+                JSONArray content = first.optJSONArray("content");
+                if (content == null || content.length() == 0) return;
 
-            JSONObject c0 = content.optJSONObject(0);
-            if (c0 == null) return;
+                JSONObject c0 = content.optJSONObject(0);
+                if (c0 == null) return;
 
-            String text = c0.optString("text");
-            text = text.replace("```json", "")
-                    .replace("```", "")
-                    .trim();
-        //    JSONObject innerJson = new JSONObject(text);
-            setValues2( text, data);
+                String text = c0.optString("text");
+                text = text.replace("```json", "")
+                        .replace("```", "")
+                        .trim();
+                //    JSONObject innerJson = new JSONObject(text);
+                setValues2(text, data);
+            }catch(JSONException je){
+                RysLogger.add(je);
+                setValues2(string, data);
+            }
             try {
 
                 TableAdapter adapter = new TableAdapter(data);
@@ -205,20 +258,21 @@ public class GPTImageArrayActivity extends AppCompatActivity {
                 recyclerView.setAdapter(adapter);
             } catch (Exception e) {
                 e.printStackTrace();
-
+                RysLogger.add(e);
 
             }
 
         } catch (Exception e) {
             e.printStackTrace();
+            RysLogger.add(e);
         }
 
     }
+
     private void setValues2(String value, ArrayList<RowModel> data) {
 
 
-
-            data.add(new RowModel(value, ""));
+        data.add(new RowModel(value, ""));
 
     }
  /*   private void setValues(String key, String value, ArrayList<RowModel> data) {

@@ -26,4 +26,21 @@ public class RetrofitClient {
 
         return retrofit.create(OpenAIApi.class);
     }
+    public static Retrofit getGenericClient() {
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(120, TimeUnit.SECONDS)   // importante per risposte lente
+                .writeTimeout(120, TimeUnit.SECONDS)  // importante per upload file
+                .retryOnConnectionFailure(true)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        return retrofit;
+    }
+
 }

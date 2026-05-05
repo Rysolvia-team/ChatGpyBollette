@@ -48,23 +48,6 @@ public class FileUtil {
         return file;
     }
 
-/*    public static void saveToDisk(String val) throws Exception {
-        FileOutputStream fileout=openFileOutput("mytextfile.txt", MODE_PRIVATE);
-        OutputStreamWriter outputWriter=new OutputStreamWriter(fileout);
-        outputWriter.write(textmsg.getText().toString());
-        outputWriter.close();
-
-        //display file saved message
-        Toast.makeText(getBaseContext(), "File saved successfully!",
-                Toast.LENGTH_SHORT).show();
-    }*/
-
-
-
-
-
-
-
     public static String decrypt(byte[] encryptedData, SecretKey key) throws Exception {
         Cipher cipher = Cipher.getInstance(ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, key);
@@ -76,11 +59,6 @@ public class FileUtil {
         keyGen.init(128); // Key size
         return keyGen.generateKey();
     }
-
-
-
-
-
 
     public static String dec(String scadenza1,String scadenza2, String scadenza3) throws Exception {
 

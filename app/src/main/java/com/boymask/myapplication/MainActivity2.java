@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
@@ -33,8 +34,9 @@ public class MainActivity2 extends AppCompatActivity {
     private TextView username;
     private ImageButton image;
     private ImageButton foto;
-    private ImageButton button ;
+    private ImageButton button;
     public static Context context;
+    boolean isRemote;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +62,7 @@ public class MainActivity2 extends AppCompatActivity {
         foto = findViewById(R.id.foto);
         foto.setOnClickListener(v -> {
             Intent intent2 = new Intent(MainActivity2.this, FotoTakerActivity.class);
-
+            intent2.putExtra("isRemote", isRemote);
             startActivity(intent2);
         });
 
@@ -73,18 +75,37 @@ public class MainActivity2 extends AppCompatActivity {
                 new ActivityResultContracts.GetContent(),
                 uri -> {
                     if (uri != null) {
-                        String pathContenuto = leggiFile(uri);
-                        //   textView.setText(contenuto);
-                        Intent intent = new Intent(MainActivity2.this, GPTPDFArrayActivity.class);
-                        ArrayList<String> vals = new ArrayList<>();
-                        vals.add(pathContenuto);
-                        intent.putStringArrayListExtra("content", vals);
-                        startActivity(intent);
+                        if (isRemote) {
+             /*               String pathContenuto = leggiFile(uri);
+
+                            Intent intent = new Intent(MainActivity2.this, GPTPDFArrayRemoteActivity.class);
+                            ArrayList<String> vals = new ArrayList<>();
+                            vals.add(pathContenuto);
+                            intent.putStringArrayListExtra("content", vals);
+                            startActivity(intent);*/
+                        } else {
+                            String pathContenuto = leggiFile(uri);
+
+                            Intent intent = new Intent(MainActivity2.this, GPTPDFArrayActivity.class);
+                            ArrayList<String> vals = new ArrayList<>();
+                            vals.add(pathContenuto);
+                            intent.putStringArrayListExtra("content", vals);
+                            startActivity(intent);
+                        }
                     }
                 }
         );
 
+        View remote = findViewById(R.id.remote);
+        remote.setOnClickListener(v -> {
+            isRemote = true;
+            Intent intent2 = new Intent(MainActivity2.this, FotoTakerActivity.class);
+            intent2.putExtra("isRemote", isRemote);
+            startActivity(intent2);
+        });
+
         button.setOnClickListener(v -> {
+            isRemote = false;
             filePicker.launch("*/*"); // puoi mettere "text/plain"
         });
 
