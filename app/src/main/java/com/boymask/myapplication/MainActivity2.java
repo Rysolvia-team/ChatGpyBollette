@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity2 extends AppCompatActivity {
 
@@ -32,6 +33,7 @@ public class MainActivity2 extends AppCompatActivity {
     private TextView username;
     private ImageButton image;
     private ImageButton foto;
+    private ImageButton button ;
     public static Context context;
 
     @Override
@@ -64,7 +66,7 @@ public class MainActivity2 extends AppCompatActivity {
 
         API_KEY = Furbo.ketKey(this);
 
-        ImageButton button = findViewById(R.id.button);
+        button = findViewById(R.id.button);
         TextView messaggio = findViewById(R.id.messaggio);
 
         ActivityResultLauncher<String> filePicker = registerForActivityResult(
@@ -89,7 +91,12 @@ public class MainActivity2 extends AppCompatActivity {
 
         DBHandler.init(this);
 
-        UserHandler.checkBolletteDisponibili(button, user, messaggio, this);
+        List<ImageButton> buttons = new ArrayList<>();
+        buttons.add(button);
+        buttons.add(foto);
+        buttons.add(image);
+
+        UserHandler.checkBolletteDisponibili(buttons, user, messaggio, this);
 
         //     buttons();
     }

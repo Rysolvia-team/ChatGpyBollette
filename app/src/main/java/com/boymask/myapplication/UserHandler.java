@@ -8,9 +8,7 @@ import android.widget.TextView;
 
 import com.boymask.RysLogger;
 import com.boymask.User;
-import com.boymask.myapplication.database.Status;
 import com.boymask.testpay.retrofit_boot.PaymentApi;
-import com.boymask.testpay.retrofit_boot.PaymentResponse;
 import com.boymask.testpay.retrofit_boot.RetrofitBootClient;
 
 import java.io.IOException;
@@ -23,7 +21,7 @@ import retrofit2.Response;
 public class UserHandler {
     private static final PaymentApi api;
     private static User user;
-    private static ImageButton button;
+    private static List<ImageButton> buttons;
     private static TextView messaggio;
     private static Activity context;
 
@@ -31,8 +29,8 @@ public class UserHandler {
         api = RetrofitBootClient.getClient().create(PaymentApi.class);
     }
 
-    public static void checkBolletteDisponibili(ImageButton button, String userid, TextView messaggio, Activity context) {
-        UserHandler.button = button;
+    public static void checkBolletteDisponibili(List<ImageButton> button, String userid, TextView messaggio, Activity context) {
+        UserHandler.buttons = button;
         UserHandler.messaggio = messaggio;
         UserHandler.context = context;
         Call<User> call = api.getUser(userid);
@@ -46,7 +44,7 @@ public class UserHandler {
                     RysLogger.add("User: "+user);
                     if (user.getBolletteTotali() - user.getBolletteAnalizzate() <= 0) {
                         context.runOnUiThread(() -> {
-                            button.setEnabled(false);
+                            for( ImageButton b:buttons) b.setEnabled(false);
                             messaggio.setText("Hai esaurito il numero di bollette disponibili");
                         });
                     }
@@ -95,7 +93,7 @@ public class UserHandler {
                     User user = response.body();
                     if (user.getBolletteTotali() - user.getBolletteAnalizzate() <= 0) {
                         context.runOnUiThread(() -> {
-                            button.setEnabled(false);
+                            for( ImageButton b:buttons) b.setEnabled(false);
                             messaggio.setText("Hai esaurito il numero di bollette disponibili");
                         });
                     }

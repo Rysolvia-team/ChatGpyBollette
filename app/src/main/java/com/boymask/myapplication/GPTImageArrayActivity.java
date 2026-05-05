@@ -14,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.boymask.RysLogger;
 import com.boymask.myapplication.listaparametri.RowModel;
 import com.boymask.myapplication.listaparametri.TableAdapter;
 import com.boymask.myapplication.retrofit.OpenAIApi;
@@ -23,6 +24,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -59,12 +61,17 @@ public class GPTImageArrayActivity extends AppCompatActivity {
         askGpt.setVisibility(View.GONE);
 
         ArrayList<String> paths = getIntent().getStringArrayListExtra("content");
+        if (paths == null || paths.isEmpty()) {
+            finish();
+            return;
+        }
         for (String uri : paths) {
             // QUI puoi usarle (upload, preview ecc.)
             System.out.println("sURI: " + uri);
         }
         analyzeImages(paths);
     }
+
     private void analyzeImages(ArrayList<String> imagePaths) {
 
         try {
@@ -85,10 +92,13 @@ public class GPTImageArrayActivity extends AppCompatActivity {
             // 🖼️ immagini
             for (String path : imagePaths) {
                 String base64 = encodeImageToBase64(path);
-
+                if (base64 == null) continue;
+               /* contentArray.put(new JSONObject()
+                        .put("type", "input_image")
+                        .put("image_base64", base64));*/
                 contentArray.put(new JSONObject()
                         .put("type", "input_image")
-                        .put("image_base64", base64));
+                        .put("image_url", "data:image/jpeg;base64," + base64));
             }
 
             message.put("content", contentArray);
@@ -107,33 +117,50 @@ public class GPTImageArrayActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                             try {
-                                String val = response.body().string();
-                                runOnUiThread(() -> reportOutput(val));
+                                if (response.body() != null) {
+                                    String val = response.body().string();
+                                    runOnUiThread(() -> reportOutput(val));
+                                }
+                                if (response.errorBody() != null) {
+                                    String val = response.errorBody().string();
+                                    runOnUiThread(() -> reportOutput(val));
+                                }
+
                             } catch (Exception e) {
                                 e.printStackTrace();
+                                RysLogger.add(e);
                             }
                         }
 
                         @Override
                         public void onFailure(Call<ResponseBody> call, Throwable t) {
                             t.printStackTrace();
+                            RysLogger.add(t);
                         }
                     });
 
         } catch (Exception e) {
             e.printStackTrace();
+            RysLogger.add(e);
         }
     }
+
     private String encodeImageToBase64(String path) {
         try {
             File file = new File(path);
-            byte[] bytes = java.nio.file.Files.readAllBytes(file.toPath());
+            FileInputStream fis = new FileInputStream(file);
+            byte[] bytes = new byte[(int) file.length()];
+            fis.read(bytes);
+            fis.close();
+
             return android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP);
+
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
+
     private void reportOutput(String string) {
         runOnUiThread(() -> {
             //   loadingContainer.setVisibility(View.GONE);
@@ -144,7 +171,7 @@ public class GPTImageArrayActivity extends AppCompatActivity {
             loadingText.setVisibility(View.GONE);
         });
 
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+   //     RecyclerView recyclerView = findViewById(R.id.recyclerView);
 
         // 🔥 dati iniziali
         data.clear();
@@ -152,39 +179,26 @@ public class GPTImageArrayActivity extends AppCompatActivity {
         try {
             JSONObject jsonObject = new JSONObject(string);
 
-            String text = jsonObject
-                    .getJSONArray("output")
-                    .getJSONObject(0)
-                    .getJSONArray("content")
-                    .getJSONObject(0)
-                    .getString("text");
+            JSONArray output = jsonObject.optJSONArray("output");
+            if (output == null || output.length() == 0) return;
+
+            JSONObject first = output.optJSONObject(0);
+            if (first == null) return;
+
+            JSONArray content = first.optJSONArray("content");
+            if (content == null || content.length() == 0) return;
+
+            JSONObject c0 = content.optJSONObject(0);
+            if (c0 == null) return;
+
+            String text = c0.optString("text");
             text = text.replace("```json", "")
                     .replace("```", "")
                     .trim();
-            JSONObject innerJson = new JSONObject(text);
-
-            // 👇 questo funziona anche se ci sono \n e \"
-            // JSONObject innerJson = new JSONObject(text);
-
-            //   textView.setText("");
-
-            StringBuilder result = new StringBuilder();
-
+        //    JSONObject innerJson = new JSONObject(text);
+            setValues2( text, data);
             try {
-                // JSONObject jsonObject = new JSONObject(string);
 
-                Iterator<String> keys = innerJson.keys();
-
-                while (keys.hasNext()) {
-                    String key = keys.next();
-                    System.out.println(key);
-                    Object value = innerJson.optString(key);
-                    setValues(key, value.toString(), data);
-                    //      data.add(new RowModel(key,value.toString()));
-
-                    //   textView.append(key + ":" + value.toString());
-
-                }
                 TableAdapter adapter = new TableAdapter(data);
 
                 recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -200,26 +214,32 @@ public class GPTImageArrayActivity extends AppCompatActivity {
         }
 
     }
-    private void setValues(String key, String value, ArrayList<RowModel> data) {
-        String s = key + " " + value;
+    private void setValues2(String value, ArrayList<RowModel> data) {
+
+
+
+            data.add(new RowModel(value, ""));
+
+    }
+ /*   private void setValues(String key, String value, ArrayList<RowModel> data) {
+
+        String s = key + ":" + value;
         s = s.replace("\"", "");
 
         String[] coppie = s.split(",");
+
         for (String coppia : coppie) {
             int index = coppia.lastIndexOf(":");
+
             if (index == -1) {
-                data.add(new RowModel(coppia, ""));
+                data.add(new RowModel(coppia.trim(), ""));
                 continue;
             }
-            index = coppia.lastIndexOf(":");
-            if (index == -1) {
-                data.add(new RowModel(key, value));
-                continue;
-            }
-            String v1 = coppia.substring(0, index);
-            String v2 = coppia.substring(index + 1);
+
+            String v1 = coppia.substring(0, index).trim();
+            String v2 = coppia.substring(index + 1).trim();
+
             data.add(new RowModel(v1, v2));
         }
-
-    }
+    }*/
 }
