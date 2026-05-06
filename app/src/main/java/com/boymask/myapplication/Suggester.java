@@ -14,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.boymask.RysLogger;
 import com.boymask.UpdaterToken;
 import com.boymask.myapplication.database.Bolletta;
 import com.boymask.myapplication.listaparametri.TableAdapter;
@@ -122,17 +123,20 @@ public class Suggester extends AppCompatActivity {
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
+                                RysLogger.add(e);
                             }
                         }
 
                         @Override
                         public void onFailure(Call<ResponseBody> call, Throwable t) {
                             t.printStackTrace();
+                            RysLogger.add(t);
                         }
                     });
 
         } catch (Exception e) {
             e.printStackTrace();
+            RysLogger.add(e);
         }
     }
 

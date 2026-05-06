@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.boymask.RysLogger;
+import com.boymask.myapplication.callbacks.CanReportOutput;
+import com.boymask.myapplication.callbacks.RysGPTCallback;
 import com.boymask.myapplication.listaparametri.RowModel;
 import com.boymask.myapplication.listaparametri.TableAdapter;
 import com.boymask.myapplication.retrofit.ApiGpt;
@@ -42,7 +44,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class GPTImageArrayActivity extends AppCompatActivity {
+public class GPTImageArrayActivity extends AppCompatActivity implements CanReportOutput {
     String API_KEY = MainActivity2.API_KEY;
     private ArrayList<RowModel> data = new ArrayList<>();
     private Button askGpt;
@@ -93,7 +95,8 @@ public class GPTImageArrayActivity extends AppCompatActivity {
         ApiGpt api = RetrofitBootClient.getClient().create(ApiGpt.class);
 
 
-        api.analyze(body).enqueue(new Callback<ResponseBody>() {
+
+       api.analyze(body).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 try {
@@ -160,7 +163,9 @@ public class GPTImageArrayActivity extends AppCompatActivity {
 
             OpenAIApi api = RetrofitClient.getClient();
 
-            api.analyzeFile("Bearer " + API_KEY, body)
+            api.analyzeFile("Bearer " + API_KEY, body).enqueue(new RysGPTCallback<ResponseBody>(this, this));
+
+           /* api.analyzeFile("Bearer " + API_KEY, body)
                     .enqueue(new Callback<ResponseBody>() {
                         @Override
                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -186,7 +191,7 @@ public class GPTImageArrayActivity extends AppCompatActivity {
                             RysLogger.add(t);
                         }
                     });
-
+*/
         } catch (Exception e) {
             e.printStackTrace();
             RysLogger.add(e);
@@ -209,7 +214,7 @@ public class GPTImageArrayActivity extends AppCompatActivity {
         }
     }
 
-    private void reportOutput(String string) {
+    public void reportOutput(String string) {
         runOnUiThread(() -> {
             //   loadingContainer.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);

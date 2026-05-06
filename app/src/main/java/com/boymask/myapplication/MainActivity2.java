@@ -31,10 +31,7 @@ import java.util.List;
 public class MainActivity2 extends AppCompatActivity {
 
     public static String API_KEY = "";
-    private TextView username;
-    private ImageButton image;
-    private ImageButton foto;
-    private ImageButton button;
+  //  private TextView username;
     public static Context context;
     boolean isRemote;
 
@@ -51,15 +48,15 @@ public class MainActivity2 extends AppCompatActivity {
         });
 
         String user = UserHandler.getUsername(this);
-        username = findViewById(R.id.username);
+      //  username = findViewById(R.id.username);
         //   username.setText(user);
-        image = findViewById(R.id.image);
+        ImageButton image = findViewById(R.id.image);
         image.setOnClickListener(v -> {
             Intent intent2 = new Intent(MainActivity2.this, ImageTakerActivity.class);
 
             startActivity(intent2);
         });
-        foto = findViewById(R.id.foto);
+        ImageButton foto = findViewById(R.id.foto);
         foto.setOnClickListener(v -> {
             Intent intent2 = new Intent(MainActivity2.this, FotoTakerActivity.class);
             intent2.putExtra("isRemote", isRemote);
@@ -68,7 +65,7 @@ public class MainActivity2 extends AppCompatActivity {
 
         API_KEY = Furbo.ketKey(this);
 
-        button = findViewById(R.id.button);
+        ImageButton button = findViewById(R.id.button);
         TextView messaggio = findViewById(R.id.messaggio);
 
         ActivityResultLauncher<String> filePicker = registerForActivityResult(

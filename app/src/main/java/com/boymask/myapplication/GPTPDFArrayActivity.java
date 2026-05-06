@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.boymask.UpdaterToken;
+import com.boymask.myapplication.callbacks.RysGPTCallback;
 import com.boymask.myapplication.listaparametri.RowModel;
 import com.boymask.myapplication.listaparametri.TableAdapter;
 import com.boymask.myapplication.retrofit.OpenAIApi;
@@ -163,6 +164,9 @@ public class GPTPDFArrayActivity extends AppCompatActivity {
                     MediaType.parse("application/json")
             );
 
+          /*  api.analyzeFile("Bearer " + apiKey, body)
+                    .enqueue(new RysGPTCallback<ResponseBody>(this,this));
+*/
             api.analyzeFile("Bearer " + apiKey, body)
                     .enqueue(new Callback<ResponseBody>() {
                         @Override

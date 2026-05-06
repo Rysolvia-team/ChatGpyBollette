@@ -1,14 +1,10 @@
 package com.boymask.myapplication;
 
-import android.app.Activity;
 import android.content.Context;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import androidx.room.Room;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
-
 
 import com.boymask.myapplication.database.Bolletta;
 import com.boymask.myapplication.database.BollettaDao;
@@ -20,7 +16,7 @@ import com.boymask.myapplication.database.StatusDatabase;
 import java.util.List;
 
 public class DBHandler {
-    public static StatusDatabase dbStatus;
+ //   public static StatusDatabase dbStatus;
     public static BollettaDatabase dbBolletta;
     private static boolean inited = false;
     static final Migration MIGRATION_2_4 = new Migration(2, 1) {
@@ -32,17 +28,17 @@ public class DBHandler {
 
     public static void init(Context context) {
 
-        dbStatus = Room.databaseBuilder(context,
+/*        dbStatus = Room.databaseBuilder(context,
                         StatusDatabase.class, "database-name")
                 .fallbackToDestructiveMigration(true)
-                .build();
+                .build();*/
 
         dbBolletta = Room.databaseBuilder(context,
                         BollettaDatabase.class, "database-bo")
                 .addMigrations(MIGRATION_2_4)
                 .build();
 
-        StatusDao statusDao = dbStatus.statusDao();
+      /*  StatusDao statusDao = dbStatus.statusDao();
 
 
         new Thread(() -> {
@@ -53,10 +49,10 @@ public class DBHandler {
                 initStatus();
             }
             inited = true;
-        }).start();
+        }).start();*/
     }
 
-    private static Status initStatus() {
+  /*  private static Status initStatus() {
         StatusDao statusDao = dbStatus.statusDao();
 
         Status s = new Status();
@@ -66,9 +62,9 @@ public class DBHandler {
         statusDao.insertAll(s);
 
         return s;
-    }
+    }*/
 
-    public static void checkBolletteDisponibili(ImageButton button, String userid, TextView messaggio, Activity context) {
+/*    public static void checkBolletteDisponibili(ImageButton button, String userid, TextView messaggio, Activity context) {
         new Thread(() -> {
             Status status;
 
@@ -93,7 +89,7 @@ public class DBHandler {
                 });
             }
         }).start();
-    }
+    }*/
 
     public static List<Bolletta> getStoricoBollette() {
         BollettaDao bollettaDao = dbBolletta.bollettaDao();
