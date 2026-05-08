@@ -77,7 +77,7 @@ public class GPTImageArrayActivity extends AppCompatActivity  {
 
         Map<String, Object> body = new HashMap<>();
         body.put("images", filesbase64);
-
+        body.put("user", MainActivity2.user);
 
         ApiGpt api = RetrofitBootClient.getClient().create(ApiGpt.class);
 

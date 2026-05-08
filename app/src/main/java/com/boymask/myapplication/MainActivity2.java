@@ -31,9 +31,10 @@ import java.util.List;
 public class MainActivity2 extends AppCompatActivity {
 
 
-  //  private TextView username;
+    //  private TextView username;
     public static Context context;
 
+    public static String user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +48,8 @@ public class MainActivity2 extends AppCompatActivity {
             return insets;
         });
 
-        String user = UserHandler.getUsername(this);
-      //  username = findViewById(R.id.username);
+        user = UserHandler.getUsername(this);
+        //  username = findViewById(R.id.username);
         //   username.setText(user);
         ImageButton image = findViewById(R.id.image);
         image.setOnClickListener(v -> {
@@ -64,7 +65,6 @@ public class MainActivity2 extends AppCompatActivity {
         });
 
 
-
         ImageButton button = findViewById(R.id.button);
         TextView messaggio = findViewById(R.id.messaggio);
 
@@ -73,20 +73,20 @@ public class MainActivity2 extends AppCompatActivity {
                 uri -> {
                     if (uri != null) {
 
-                           String pathContenuto = leggiFile(uri);
+                        String pathContenuto = leggiFile(uri);
 
-                            Intent intent = new Intent(MainActivity2.this, GPTPDFArrayRemoteActivity.class);
-                            ArrayList<String> vals = new ArrayList<>();
-                            vals.add(pathContenuto);
-                            intent.putStringArrayListExtra("content", vals);
-                            startActivity(intent);
+                        Intent intent = new Intent(MainActivity2.this, GPTPDFArrayRemoteActivity.class);
+                        ArrayList<String> vals = new ArrayList<>();
+                        vals.add(pathContenuto);
+                        intent.putStringArrayListExtra("content", vals);
+                        startActivity(intent);
 
 
                     }
                 }
         );
 
-;
+        ;
 
         button.setOnClickListener(v -> {
 
@@ -106,10 +106,6 @@ public class MainActivity2 extends AppCompatActivity {
         //     buttons();
     }
 
-
-    private void buttons() {
-        UserHandler.decBollette();
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

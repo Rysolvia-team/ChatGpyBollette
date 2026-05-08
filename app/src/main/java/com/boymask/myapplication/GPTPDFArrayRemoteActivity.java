@@ -82,6 +82,7 @@ public class GPTPDFArrayRemoteActivity extends AppCompatActivity {
 
         Map<String, Object> body = new HashMap<>();
         body.put("pdf", filesbase64);
+        body.put("user", MainActivity2.user);
 
         ApiGpt api = RetrofitBootClient.getClient().create(ApiGpt.class);
 
