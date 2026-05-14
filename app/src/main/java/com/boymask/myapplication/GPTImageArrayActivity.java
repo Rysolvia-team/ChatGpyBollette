@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.boymask.RysLogger;
+import com.boymask.TextResultProcessor;
 import com.boymask.myapplication.listaparametri.RowModel;
 import com.boymask.myapplication.listaparametri.TableAdapter;
 import com.boymask.myapplication.retrofit.ApiGpt;
@@ -180,6 +181,7 @@ public class GPTImageArrayActivity extends AppCompatActivity  {
                 text = text.replace("```json", "")
                         .replace("```", "")
                         .trim();
+                text = TextResultProcessor.process(text);
                 DBHandler.saveBolletta(text);
                 //    JSONObject innerJson = new JSONObject(text);
                 setValues2(text, data);

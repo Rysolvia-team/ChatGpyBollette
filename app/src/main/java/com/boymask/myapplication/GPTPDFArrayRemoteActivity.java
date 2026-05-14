@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.boymask.RysLogger;
+import com.boymask.TextResultProcessor;
 import com.boymask.myapplication.database.Bolletta;
 import com.boymask.myapplication.listaparametri.RowModel;
 import com.boymask.myapplication.listaparametri.TableAdapter;
@@ -172,7 +173,8 @@ public class GPTPDFArrayRemoteActivity extends AppCompatActivity {
             text = text.replace("```json", "")
                     .replace("```", "")
                     .trim();
-            System.out.println( text);
+            text = TextResultProcessor.process(text);
+
             DBHandler.saveBolletta(text);
             try {
                 setValues("S", text, data);
